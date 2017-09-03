@@ -11,7 +11,10 @@ boxes = cross(rows, cols)
 row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
+
+#Definition of the diagonal units used to solve the Diagonal Sudoku
 diagonal_units = [['A1', 'B2', 'C3', 'D4', 'E5', 'F6', 'G7', 'H8', 'I9', ], ['A9', 'B8', 'C7', 'D6', 'E5', 'F4', 'G3', 'H2', 'I1', ]]
+
 unitlist = row_units + column_units + square_units + diagonal_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
@@ -42,6 +45,8 @@ def naked_twins(values):
 
     # Find all instances of naked twins
     # Eliminate the naked twins as possibilities for their peers
+    
+    #Find Naked Twins in the Rows
     for row in row_units:
         for box in row:
             if(len(values[box]) == 2):
@@ -51,7 +56,8 @@ def naked_twins(values):
                         for changeBox in row:
                             if (changeBox != box and changeBox != places[0]):
                                 values[changeBox] = values[changeBox].replace(digit, '')
-
+    
+    #Find Naked Twins in the columns
     for col in column_units:
         for box in col:
             if(len(values[box]) == 2):
@@ -61,7 +67,8 @@ def naked_twins(values):
                         for changeBox in col:
                             if (changeBox != box and changeBox != places[0]):
                                 values[changeBox] = values[changeBox].replace(digit, '')
-
+    
+    #Find Naked Twins in the squares
     for square in square_units:
         for box in square:
             if(len(values[box]) == 2):
@@ -131,7 +138,10 @@ def reduce_puzzle(values):
         solved_values_before = len([box for box in values.keys() if len(values[box]) == 1])
         values = eliminate(values)
         values = only_choice(values)
+        
+        #Apply the Naked Twins constraint along with the other constraints to reduce the domain of the variables
         values = naked_twins(values)
+        
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
         stalled = solved_values_before == solved_values_after
         if len([box for box in values.keys() if len(values[box]) == 0]):
